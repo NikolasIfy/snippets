@@ -4,7 +4,6 @@ import re
 
 
 def convert(tmx):
-# inputfile = r'c:\!work\@CurrentIssues\2014-08-29_NAP_TM\NAP_TM_update_fr-FR_2014-08-26.tmx'
     inputtmx = open(tmx, 'r').read()
     #pseudoconvert to TMX 1.4 - change header only
     tmx14_1 = re.sub(r'<!DOCTYPE tmx SYSTEM "tmx11.dtd">', r'<!DOCTYPE tmx SYSTEM "tmx14.dtd">', inputtmx)

@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
-#This script converts CSV export with ItemSpecifics to TMX.
+# This script converts CSV export with ItemSpecifics to TMX.
 
-import os, re
-import fileinput, codecs
+import os
+import re
+import fileinput
+import codecs
 
-#TMX structural parts
 filename = raw_input("File name: ")
-srclangcode = raw_input("Source language code: ")
-# 'EN-GB'
-tgtlangcode = raw_input("Target language code: ")
-# 'DE-DE'
 
+# Example: 'EN-GB'
+srclangcode = raw_input("Source language code: ")
+# Example: 'DE-DE'
+tgtlangcode = raw_input("Target language code: ")
+
+# TMX structural parts
 tmxheader = ur'''<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tmx SYSTEM "tmx14.dtd">
 <tmx version = "1.4">
@@ -46,24 +49,29 @@ tmxfooter = ur'''
 <body>
 </body>
 </tmx>'''
-segmentheader = ur'''<tu creationdate="20140522T083545Z" creationid="TMS_USER" datatype="x-lptmx" srclang="''' + srclangcode + ur'"><tuv xml:lang="'+ srclangcode + ur'"><seg>eBayCategoryID'
+segmentheader = ur'<tu creationdate="20140522T083545Z" creationid="TMS_USER" ' \
+                + ur'datatype="x-lptmx" srclang="' \
+                + srclangcode + ur'"><tuv xml:lang="' \
+                + srclangcode + ur'"><seg>eBayCategoryID'
 segmentfooter = ur'</seg></tuv></tu>'
 
 src_nametag_open = r'<bpt i="1" x="1">&lt;Name&gt;</bpt>'
 src_nametag_close = r'<ept i="1">&lt;/Name&gt;</ept>'
-src_valuetag_open = r'<bpt i="2" x="2">&lt;Value&gt;</bpt>' #if no value, discard
-src_valuetag_close = r'<ept i="2">&lt;/Value&gt;</ept>' #if no value, discard
+# if no value, discard this part:
+src_valuetag_open = r'<bpt i="2" x="2">&lt;Value&gt;</bpt>'
+# if no value, discard this part:
+src_valuetag_close = r'<ept i="2">&lt;/Value&gt;</ept>'
 end_src_segment = r'</seg></tuv>'
 
-beg_tgt_segment = r'<tuv xml:lang="' + tgtlangcode + '"><seg>eBayCategoryID' #with tgtlangcode
+beg_tgt_segment = r'<tuv xml:lang="' + tgtlangcode + '"><seg>eBayCategoryID'  # with tgtlangcode
 tgt_nametag_open = r'<bpt i="1" x="1">&lt;Name&gt;</bpt>'
-tgt_nametag_close = r'<ept i="1">&lt;/Name&gt;</ept><ph>&lt;TBD /&gt;</ph>' #with added <TBD> tag
-tgt_valuetag_open = r'<bpt i="2" x="2">&lt;Value&gt;</bpt>'  #if no value, discard
-tgt_valuetag_close = r'<ept i="2">&lt;/Value&gt;</ept>' #if no value, discard
+tgt_nametag_close = r'<ept i="1">&lt;/Name&gt;</ept><ph>&lt;TBD /&gt;</ph>'  # with added <TBD> tag
+tgt_valuetag_open = r'<bpt i="2" x="2">&lt;Value&gt;</bpt>'  # if no value, discard
+tgt_valuetag_close = r'<ept i="2">&lt;/Value&gt;</ept>'  # if no value, discard
 
 
 def entitize(a_string):
-    if a_string == None:
+    if a_string is None:
         return None
     else:
         repl_lt = re.sub(r'<', r'&amp;lt;', a_string)
@@ -72,28 +80,31 @@ def entitize(a_string):
         repl_quot = re.sub(r'""', r'"', repl_and)
         return repl_quot
 
+
 def process(a_line):
-    parsedline = re.search(r'^"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?',a_line)
-    if parsedline == None:
+    parsedline = re.search(r'^"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?'
+                           '(.*?)"?\t"?(.*?)"?\t"?(.*?)"?\t"?(.*?)"?', a_line)
+    if parsedline is None:
         return None
     else:
-    #   src_cat_name = entitize(parsedline.group(1))
+        # src_cat_name = entitize(parsedline.group(1))
         src_cat_id = entitize(parsedline.group(2))
         src_is_name = entitize(parsedline.group(3))
         src_is_value = entitize(parsedline.group(4))
-    #   tgt_cat_name = entitize(parsedline.group(5))
+        # tgt_cat_name = entitize(parsedline.group(5))
         tgt_cat_id = entitize(parsedline.group(6))
         tgt_is_name = entitize(parsedline.group(7))
         tgt_is_value = entitize(parsedline.group(8))
-        if src_is_name == "" or src_is_value == "" or tgt_is_name == "" or tgt_is_name == "" or src_cat_id == "Source category ID":
+        if src_is_name == "" or src_is_value == "" or tgt_is_name == "" \
+                or tgt_is_name == "" or src_cat_id == "Source category ID":
             a_line = ""
         else:
             a_line = segmentheader + src_cat_id \
-            + src_nametag_open + src_is_name + src_nametag_close \
-            + src_valuetag_open + src_is_value + src_valuetag_close + end_src_segment \
-            + beg_tgt_segment + tgt_cat_id \
-            + tgt_nametag_open + tgt_is_name + tgt_nametag_close \
-            + tgt_valuetag_open + tgt_is_value + tgt_valuetag_close + segmentfooter
+                + src_nametag_open + src_is_name + src_nametag_close \
+                + src_valuetag_open + src_is_value + src_valuetag_close + end_src_segment \
+                + beg_tgt_segment + tgt_cat_id \
+                + tgt_nametag_open + tgt_is_name + tgt_nametag_close \
+                + tgt_valuetag_open + tgt_is_value + tgt_valuetag_close + segmentfooter
         return a_line
 
 tmxfilename, tmxfileextension = os.path.splitext(filename)
@@ -102,10 +113,11 @@ newtmx.write(tmxheader)
 
 for line in fileinput.FileInput(filename, mode="U", openhook=fileinput.hook_encoded("utf-16")):
     newline = process(line)
-    if newline == None or newline == "":
+    if newline is None or newline == "":
         pass
     else:
         newtmx.write(newline + "\n")
 newtmx.write(tmxfooter)
 newtmx.close()
+
 print "New TMX ready."

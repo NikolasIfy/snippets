@@ -1,5 +1,6 @@
 import re
 
+
 def findval(singlechar):
     # Returns numerical value of character
     if singlechar.isalpha() and len(singlechar) == 1:
@@ -18,13 +19,18 @@ def findval(singlechar):
     else:
         return singlechar.lower()
 
+
 def prestring(string):
-    # If two or more letters with the same number are adjacent in the original name (before step 1), only retain the first letter; also two letters with the same number separated by 'h' or 'w' are coded as a single number, whereas such letters separated by a vowel are coded twice. This rule also applies to the first letter.
+    # If two or more letters with the same number are adjacent in the original name
+    # (before step 1), only retain the first letter; also two letters with the same number
+    # separated by 'h' or 'w' are coded as a single number, whereas such letters
+    # separated by a vowel are coded twice. This rule also applies to the first letter.
     sub1 = re.sub(r'([bfpv])[hw]?[bfpv]', r'\1', string)
     sub2 = re.sub(r'([cgjkqsxz])[hw]?[cgjkqsxz]', r'\1', sub1)
     sub3 = re.sub(r'([dt])[hw]?[dt]', r'\1', sub2)
     sub4 = re.sub(r'([mn])[hw]?[mn]', r'\1', sub3)
     return sub4
+
 
 def soundex(string):
     '''Algorithm returning Soundex value for names, e.g. Caroline -> C645.'''

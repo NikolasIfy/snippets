@@ -1,12 +1,14 @@
-#Example of comparison of reading difficulty score (ARI) for two NLTK corpora.
+# Example of comparison of reading difficulty score (ARI) for two NLTK corpora.
 
 from nltk.corpus import abc
+
 
 def avg(lst):
     lentotal = 0.0
     for word in lst:
         lentotal = lentotal + len(word)
     return lentotal / len(lst)
+
 
 def ari(corpus_words, corpus_sents):
     avgchar = avg(corpus_words)
